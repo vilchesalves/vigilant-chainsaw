@@ -15,7 +15,7 @@ function App() {
       )}
       {data && (
         <ul>
-          {data.map((horse) => (
+          {data.slice(0, 10).map((horse) => (
             <li key={horse.id}>{horse.name}</li>
           ))}
         </ul>
