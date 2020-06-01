@@ -6,13 +6,67 @@ import './App.css';
 import useHorses from './services/useHorses';
 
 function App() {
-  const { data: horses, loading, errors } = useHorses();
+  const {
+    data: horses, loading, errors,
+    editHorse,
+  } = useHorses();
   const [selectedHorseId, setSelectedHorseId] = React.useState('');
-  const selectedHorse = horses?.find((horse) => horse.id === selectedHorseId);
+  const [selectedHorse, setSelectedHorse] = React.useState(null);
 
-  const selectHorse = (id) => {
-    setSelectedHorseId(id);
+  const handleHorseChange = (e) => {
+    const { id, value } = e.target;
+
+    if (id === 'name') {
+      setSelectedHorse({
+        ...selectedHorse,
+        [id]: value,
+      });
+    } else if (id === 'favouriteFood') {
+      setSelectedHorse({
+        ...selectedHorse,
+        profile: {
+          ...selectedHorse.profile,
+          [id]: value,
+        },
+      });
+    } else if (
+      id === 'weight'
+      || id === 'height'
+    ) {
+      setSelectedHorse({
+        ...selectedHorse,
+        profile: {
+          ...selectedHorse.profile,
+          physical: {
+            ...selectedHorse.profile.physical,
+            [id]: value,
+          },
+        },
+      });
+    }
   };
+
+  const handleHorseSave = async (e) => {
+    e.preventDefault();
+
+    const {
+      id, ...horse
+    } = selectedHorse;
+
+    await editHorse({ id, horse });
+  };
+
+  React.useEffect(() => {
+    if (
+      !horses
+    ) return;
+
+    const newHorse = horses?.find((horse) => horse.id === selectedHorseId);
+
+    if (newHorse?.id !== selectedHorse?.id) {
+      setSelectedHorse(newHorse);
+    }
+  }, [selectedHorse, selectedHorseId, horses]);
 
   return (
     <div className="App">
@@ -26,7 +80,7 @@ function App() {
               <li key={horse.id}>
                 <button
                   type="button"
-                  onClick={() => { selectHorse(horse.id); }}
+                  onClick={() => { setSelectedHorseId(horse.id); }}
                 >
                   {horse.name}
                 </button>
@@ -39,25 +93,48 @@ function App() {
         )}
       </header>
       {selectedHorse && (
-        <section>
+        <form onSubmit={handleHorseSave}>
           <h1>Details</h1>
           <label htmlFor="name">
             Name
-            <input id="name" value={selectedHorse.name} />
+            <input
+              id="name"
+              value={selectedHorse.name}
+              onChange={handleHorseChange}
+            />
           </label>
           <label htmlFor="favouriteFood">
             favouriteFood
-            <input id="favouriteFood" value={selectedHorse.profile.favouriteFood} />
+            <input
+              id="favouriteFood"
+              value={selectedHorse.profile.favouriteFood}
+              onChange={handleHorseChange}
+            />
           </label>
           <label htmlFor="weight">
             weight
-            <input id="weight" value={selectedHorse.profile.physical.weight} />
+            <input
+              id="weight"
+              value={selectedHorse.profile.physical.weight}
+              onChange={handleHorseChange}
+            />
           </label>
           <label htmlFor="height">
             height
-            <input id="height" value={selectedHorse.profile.physical.height} />
+            <input
+              id="height"
+              value={selectedHorse.profile.physical.height}
+              onChange={handleHorseChange}
+            />
           </label>
-        </section>
+          <button type="submit">Save</button>
+          <button
+            type="button"
+            onClick={() => { setSelectedHorseId(''); }}
+          >
+            Cancel
+          </button>
+        </form>
       )}
     </div>
   );
