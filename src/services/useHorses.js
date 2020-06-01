@@ -6,6 +6,15 @@ const useHorses = () => {
   const [loading, setLoading] = React.useState(false);
   const [errors, setErrors] = React.useState(false);
 
+  const editHorse = async ({ id, horse }) => {
+    const response = await Axios.put(
+      `${process.env.REACT_APP_HORSES}/horse/${id}`,
+      horse,
+    );
+
+    return response;
+  };
+
   React.useEffect(() => {
     if (
       data
@@ -28,7 +37,10 @@ const useHorses = () => {
   });
 
   return {
-    data, loading, errors,
+    data,
+    loading,
+    errors,
+    editHorse,
   };
 };
 
