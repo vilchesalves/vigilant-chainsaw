@@ -2,7 +2,7 @@
 
 import React from 'react';
 import {
-  render, act, getByDisplayValue,
+  render, act, getByDisplayValue, fireEvent,
 } from '@testing-library/react';
 import Axios from 'axios';
 
@@ -11,14 +11,17 @@ import App from './App';
 describe('horse app', () => {
   beforeAll(() => {
     Axios.get = jest.fn();
+    Axios.put = jest.fn();
   });
 
   afterEach(() => {
     Axios.get.mockReset();
+    Axios.put.mockReset();
   });
 
   afterAll(() => {
     Axios.get.mockRestore();
+    Axios.put.mockRestore();
   });
 
   it('presents a list of horse names', async () => {
@@ -31,8 +34,8 @@ describe('horse app', () => {
 
     const wrapper = render(<App />);
 
-    await wrapper.findByText(horses[0].name);
-    await wrapper.findByText(horses[1].name);
+    wrapper.findByText(horses[0].name);
+    wrapper.findByText(horses[1].name);
   });
 
   it('should present only up to 10 horses', async () => {
@@ -82,9 +85,43 @@ describe('horse app', () => {
 
     const detailsContainer = (await wrapper.findByText('Details')).parentNode;
 
-    await getByDisplayValue(detailsContainer, horses[0].name);
-    await getByDisplayValue(detailsContainer, horses[0].profile.favouriteFood);
-    await getByDisplayValue(detailsContainer, horses[0].profile.physical.weight.toString());
-    await getByDisplayValue(detailsContainer, horses[0].profile.physical.height.toString());
+    getByDisplayValue(detailsContainer, horses[0].name);
+    getByDisplayValue(detailsContainer, horses[0].profile.favouriteFood);
+    getByDisplayValue(detailsContainer, horses[0].profile.physical.weight.toString());
+    getByDisplayValue(detailsContainer, horses[0].profile.physical.height.toString());
+  });
+
+  it('edits details for a horse', async () => {
+    const horses = [
+      {
+        id: 'c36193c4-d60b-48f8-bb16-cf184299407a',
+        name: 'Thunderdash',
+        profile: {
+          favouriteFood: 'Hot Chips',
+          physical: {
+            height: 200,
+            weight: 450,
+          },
+        },
+      }];
+
+    Axios.get.mockResolvedValueOnce({ data: horses });
+
+    const wrapper = render(<App />);
+
+    const newName = 'Shiny Marvelous';
+
+    await act(async () => {
+      (await wrapper.findByText(horses[0].name)).click();
+
+      const nameInput = await wrapper.findByLabelText('Name');
+      fireEvent.change(nameInput, {
+        target: { value: newName },
+      });
+    });
+
+    (await wrapper.findByText('Save')).click();
+
+    expect(Axios.put.mock.calls[0][1].name).toBe(newName);
   });
 });
