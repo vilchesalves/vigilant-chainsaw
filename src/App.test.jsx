@@ -1,7 +1,9 @@
 /* globals describe, it, jest, beforeAll, afterEach, afterAll, expect */
 
 import React from 'react';
-import { render } from '@testing-library/react';
+import {
+  render, act, getByDisplayValue,
+} from '@testing-library/react';
 import Axios from 'axios';
 
 import App from './App';
@@ -54,5 +56,35 @@ describe('horse app', () => {
 
     expect(await wrapper.findAllByText(horses[0].name)).toHaveLength(10);
     expect(await wrapper.queryByText(horses[10].name)).toBeFalsy();
+  });
+
+  it('displays details for a horse', async () => {
+    const horses = [
+      {
+        id: 'c36193c4-d60b-48f8-bb16-cf184299407a',
+        name: 'Thunderdash',
+        profile: {
+          favouriteFood: 'Hot Chips',
+          physical: {
+            height: 200,
+            weight: 450,
+          },
+        },
+      }];
+
+    Axios.get.mockResolvedValueOnce({ data: horses });
+
+    const wrapper = render(<App />);
+
+    await act(async () => {
+      (await wrapper.findByText(horses[0].name)).click();
+    });
+
+    const detailsContainer = (await wrapper.findByText('Details')).parentNode;
+
+    await getByDisplayValue(detailsContainer, horses[0].name);
+    await getByDisplayValue(detailsContainer, horses[0].profile.favouriteFood);
+    await getByDisplayValue(detailsContainer, horses[0].profile.physical.weight.toString());
+    await getByDisplayValue(detailsContainer, horses[0].profile.physical.height.toString());
   });
 });
