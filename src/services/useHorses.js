@@ -14,6 +14,33 @@ const useHorses = () => {
       };
     }
 
+    // new horse
+    if (!id) {
+      try {
+        const response = await Axios.put(
+          `${process.env.REACT_APP_HORSES}/horse`,
+          horse,
+        );
+
+        const updatedHorses = [].concat(
+          data,
+          {
+            ...horse,
+            id: response.data,
+          },
+        );
+
+        setData(updatedHorses);
+        return { success: true };
+      } catch (error) {
+        return {
+          success: false,
+          error,
+        };
+      }
+    }
+
+    // existing horse
     try {
       await Axios.put(
         `${process.env.REACT_APP_HORSES}/horse/${id}`,
@@ -32,10 +59,7 @@ const useHorses = () => {
       });
 
       setData(updatedHorses);
-
-      return {
-        success: true,
-      };
+      return { success: true };
     } catch (error) {
       return {
         success: false,
