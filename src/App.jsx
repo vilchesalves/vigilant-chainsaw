@@ -8,7 +8,7 @@ import useHorses from './services/useHorses';
 function App() {
   const {
     data: horses, loading, errors,
-    editHorse,
+    saveHorse,
   } = useHorses();
   const [selectedHorseId, setSelectedHorseId] = React.useState('');
   const [selectedHorse, setSelectedHorse] = React.useState(null);
@@ -53,7 +53,7 @@ function App() {
       id, ...horse
     } = selectedHorse;
 
-    const { success, error } = await editHorse({ id, horse });
+    const { success, error } = await saveHorse({ id, horse });
 
     if (!success) {
       alert(error.message);

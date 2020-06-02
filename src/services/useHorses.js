@@ -6,7 +6,7 @@ const useHorses = () => {
   const [loading, setLoading] = React.useState(false);
   const [errors, setErrors] = React.useState(false);
 
-  const editHorse = async ({ id, horse }) => {
+  const saveHorse = async ({ id, horse }) => {
     if (!horse.name) {
       return {
         success: false,
@@ -93,7 +93,7 @@ const useHorses = () => {
     data,
     loading,
     errors,
-    editHorse,
+    saveHorse,
   };
 };
 
