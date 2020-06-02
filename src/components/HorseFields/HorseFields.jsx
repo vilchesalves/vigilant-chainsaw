@@ -31,7 +31,7 @@ const HorseFields = ({
           ...horseData.profile,
           physical: {
             ...horseData.profile.physical,
-            [id]: value,
+            [id]: parseFloat(value, 10),
           },
         },
       });
