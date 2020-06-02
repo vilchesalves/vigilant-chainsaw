@@ -53,7 +53,11 @@ function App() {
       id, ...horse
     } = selectedHorse;
 
-    await editHorse({ id, horse });
+    const { success, error } = await editHorse({ id, horse });
+
+    if (!success) {
+      alert(error.message);
+    }
   };
 
   React.useEffect(() => {
@@ -88,6 +92,9 @@ function App() {
             ))}
           </ul>
         )}
+        {!loading && (
+          <button type="button">Add</button>
+        )}
         {errors && (
           <p>Horses could not be loaded.</p>
         )}
@@ -99,7 +106,7 @@ function App() {
             Name
             <input
               id="name"
-              value={selectedHorse.name}
+              value={selectedHorse.name || ''}
               onChange={handleHorseChange}
             />
           </label>
@@ -107,7 +114,7 @@ function App() {
             favouriteFood
             <input
               id="favouriteFood"
-              value={selectedHorse.profile.favouriteFood}
+              value={selectedHorse.profile.favouriteFood || ''}
               onChange={handleHorseChange}
             />
           </label>
@@ -115,7 +122,7 @@ function App() {
             weight
             <input
               id="weight"
-              value={selectedHorse.profile.physical.weight}
+              value={selectedHorse.profile.physical.weight || ''}
               onChange={handleHorseChange}
             />
           </label>
@@ -123,7 +130,7 @@ function App() {
             height
             <input
               id="height"
-              value={selectedHorse.profile.physical.height}
+              value={selectedHorse.profile.physical.height || ''}
               onChange={handleHorseChange}
             />
           </label>

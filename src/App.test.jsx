@@ -20,8 +20,7 @@ describe('horse app', () => {
   });
 
   afterAll(() => {
-    Axios.get.mockRestore();
-    Axios.put.mockRestore();
+    jest.restoreAllMocks();
   });
 
   it('presents a list of horse names', async () => {
@@ -130,5 +129,28 @@ describe('horse app', () => {
 
     // and the new name to be available in the interface
     await wrapper.findByText(newName);
+
+    // empty name case
+    const emptyName = '';
+
+    window.alert = jest.fn();
+
+    await act(async () => {
+      // clicking the new name
+      (await wrapper.findByText(newName)).click();
+
+      // inputting a new name
+      const nameInput = await wrapper.findByLabelText('Name');
+      fireEvent.change(nameInput, {
+        target: { value: emptyName },
+      });
+
+      // and saving it
+      (await wrapper.findByText('Save')).click();
+    });
+
+    // should not have been saved and the newName should still be available
+    await wrapper.findByText(newName);
+    expect(window.alert.mock.calls).toHaveLength(1);
   });
 });

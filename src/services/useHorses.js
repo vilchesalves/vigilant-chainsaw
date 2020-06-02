@@ -7,6 +7,13 @@ const useHorses = () => {
   const [errors, setErrors] = React.useState(false);
 
   const editHorse = async ({ id, horse }) => {
+    if (!horse.name) {
+      return {
+        success: false,
+        error: new Error('A horse should have a name'),
+      };
+    }
+
     try {
       await Axios.put(
         `${process.env.REACT_APP_HORSES}/horse/${id}`,
