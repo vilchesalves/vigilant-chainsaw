@@ -7,12 +7,34 @@ const useHorses = () => {
   const [errors, setErrors] = React.useState(false);
 
   const editHorse = async ({ id, horse }) => {
-    const response = await Axios.put(
-      `${process.env.REACT_APP_HORSES}/horse/${id}`,
-      horse,
-    );
+    try {
+      await Axios.put(
+        `${process.env.REACT_APP_HORSES}/horse/${id}`,
+        horse,
+      );
 
-    return response;
+      const updatedHorses = data.map((existingHorse) => {
+        if (existingHorse.id === id) {
+          return {
+            ...horse,
+            id,
+          };
+        }
+
+        return existingHorse;
+      });
+
+      setData(updatedHorses);
+
+      return {
+        success: true,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error,
+      };
+    }
   };
 
   React.useEffect(() => {
@@ -27,8 +49,8 @@ const useHorses = () => {
       try {
         const response = await Axios.get(`${process.env.REACT_APP_HORSES}/horse`);
         setData(response.data);
-      } catch (e) {
-        setErrors(e);
+      } catch (error) {
+        setErrors(error);
       }
       setLoading(false);
     };

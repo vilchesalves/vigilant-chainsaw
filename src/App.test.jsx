@@ -112,16 +112,23 @@ describe('horse app', () => {
     const newName = 'Shiny Marvelous';
 
     await act(async () => {
+      // clicking the horse's name
       (await wrapper.findByText(horses[0].name)).click();
 
+      // inputting a new name
       const nameInput = await wrapper.findByLabelText('Name');
       fireEvent.change(nameInput, {
         target: { value: newName },
       });
+
+      // and saving it
+      (await wrapper.findByText('Save')).click();
     });
 
-    (await wrapper.findByText('Save')).click();
-
+    // expect the backend to be called with the new name
     expect(Axios.put.mock.calls[0][1].name).toBe(newName);
+
+    // and the new name to be available in the interface
+    await wrapper.findByText(newName);
   });
 });
