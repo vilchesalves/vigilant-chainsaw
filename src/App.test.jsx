@@ -15,8 +15,7 @@ describe('horse app', () => {
   });
 
   afterEach(() => {
-    Axios.get.mockReset();
-    Axios.put.mockReset();
+    jest.resetAllMocks();
   });
 
   afterAll(() => {
@@ -152,5 +151,60 @@ describe('horse app', () => {
     // should not have been saved and the newName should still be available
     await wrapper.findByText(newName);
     expect(window.alert.mock.calls).toHaveLength(1);
+  });
+
+  it('allows a horse to be added', async () => {
+    const horses = [
+      {
+        id: 'c36193c4-d60b-48f8-bb16-cf184299407a',
+        name: 'Thunderdash',
+        profile: {
+          favouriteFood: 'Hot Chips',
+          physical: {
+            height: 200,
+            weight: 450,
+          },
+        },
+      }];
+
+    Axios.get.mockResolvedValueOnce({ data: horses });
+    Axios.put.mockResolvedValueOnce({ data: '5acb3b5a-c67b-4291-b8f5-67020db52165' });
+
+    const wrapper = render(<App />);
+
+    const newHorse = {
+      name: 'Little Phony',
+      favouriteFood: 'Cheetos',
+      height: 130,
+      weight: 230,
+    };
+
+    await act(async () => {
+      fireEvent.click(
+        (await wrapper.findByText('Add')),
+      );
+
+      fireEvent.change(
+        (await wrapper.findByLabelText('Name')),
+        { target: { value: newHorse.name } },
+      );
+      fireEvent.change(
+        (await wrapper.findByLabelText('favouriteFood')),
+        { target: { value: newHorse.favouriteFood } },
+      );
+      fireEvent.change(
+        (await wrapper.findByLabelText('weight')),
+        { target: { value: newHorse.weight } },
+      );
+      fireEvent.change(
+        (await wrapper.findByLabelText('height')),
+        { target: { value: newHorse.height } },
+      );
+
+      (await wrapper.findByText('Save')).click();
+    });
+
+    // new horse should be on the list
+    await wrapper.findByText(newHorse.name);
   });
 });
